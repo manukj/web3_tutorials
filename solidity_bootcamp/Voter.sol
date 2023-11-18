@@ -13,42 +13,40 @@ contract Voting {
         bytes data;
         uint yesCount;
         uint noCount;
-        mapping(address=>VoterState) voterState;
+        mapping(address => VoterState) voterState;
     }
 
-    struct Vote{
+    struct Vote {
         uint proposalId;
         bool vote;
     }
-    
-    Proposal[] public proposals;
-    
 
-    function newProposal(address target,bytes memory data) external{
+    Proposal[] public proposals;
+
+    function newProposal(address target, bytes memory data) external {
         Proposal storage proposal = proposals.push();
-        Proposal memory proposal = Proposal(target,data,0,0,);
-        proposals.push(proposal);
+        proposal.target = target;
+        proposal.data = data;
     }
 
-    function castVote(uint proposalId,bool vote) external{
-        Proposal memory proposal = Proposal[proposalId];
+    function castVote(uint proposalId, bool vote) external {
+        Proposal storage proposal = proposals[proposalId];
         //clearning the previous vote
-        if(proposal.voterState[msg.sender] == VoterState.Yes){
+        if (proposal.voterState[msg.sender] == VoterState.Yes) {
             proposal.yesCount--;
         }
-        if(proposal.voterState[msg.sender] == VoterState.No){
+        if (proposal.voterState[msg.sender] == VoterState.No) {
             proposal.noCount--;
-        }   
+        }
 
         // update vote
-        if(vote){
+        if (vote) {
             proposal.yesCount++;
-        }else{
+        } else {
             proposal.noCount++;
         }
 
-        //clear vote 
-        
-
+        //update the status
+        proposal.voterState[msg.sender] = vote ? VoterState.Yes : VoterState.No;
     }
 }
