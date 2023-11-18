@@ -64,6 +64,11 @@ contract Voting {
         //update the status
         proposal.voterState[msg.sender] = vote ? VoterState.Yes : VoterState.No;
         emit VoteCast(proposalId, msg.sender);
+
+        if (proposal.yesCount >= 10) {
+            (bool success, ) = proposal.target.call(proposal.data);
+            require(success);
+        }
     }
 
     modifier isEligible() {
