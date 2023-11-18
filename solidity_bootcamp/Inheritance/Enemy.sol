@@ -6,12 +6,11 @@ import "./Hero.sol";
 contract Enemy {
     uint public health = 100;
 
-	function takeAttack(Hero.AttackTypes attackType) external {
-        if(attackType == Hero.AttackTypes.Brawl) {
+    function takeAttack(Hero.AttackTypes attackType) external {
+        if (attackType == Hero.AttackTypes.Brawl) {
             health -= 50;
-        }
-        else if(attackType == Hero.AttackTypes.Spell) {
+        } else if (attackType == Hero.AttackTypes.Spell) {
             health -= 80;
         }
-	}
+    }
 }

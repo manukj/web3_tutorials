@@ -6,12 +6,14 @@ import "./Hero.sol";
 // TODO: create Mage/Warrior Heroes
 contract Mage is Hero(50) {
     function attack(Enemy enemy) public override {
+        super.attack(enemy);
         enemy.takeAttack(Hero.AttackTypes.Spell);
     }
 }
 
 contract Warrior is Hero(200) {
     function attack(Enemy enemy) public override {
+        super.attack(enemy);
         enemy.takeAttack(Hero.AttackTypes.Brawl);
     }
 }
