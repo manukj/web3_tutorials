@@ -23,10 +23,14 @@ contract Voting {
 
     Proposal[] public proposals;
 
+    event ProposalCreated(uint);
+    event VoteCast(uint, address);
+
     function newProposal(address target, bytes memory data) external {
         Proposal storage proposal = proposals.push();
         proposal.target = target;
         proposal.data = data;
+        emit ProposalCreated(proposals.length - 1);
     }
 
     function castVote(uint proposalId, bool vote) external {
@@ -48,5 +52,6 @@ contract Voting {
 
         //update the status
         proposal.voterState[msg.sender] = vote ? VoterState.Yes : VoterState.No;
+        emit VoteCast(proposalId, msg.sender);
     }
 }
