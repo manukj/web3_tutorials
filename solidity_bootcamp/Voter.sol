@@ -22,18 +22,29 @@ contract Voting {
     }
 
     Proposal[] public proposals;
+    mapping(address => bool) eligibleCandidate;
 
     event ProposalCreated(uint);
     event VoteCast(uint, address);
 
-    function newProposal(address target, bytes memory data) external {
+    constructor(address[] memory _eligible) {
+        eligibleCandidate[msg.sender] = true;
+        for (uint i = 0; i < _eligible.length; i++) {
+            eligibleCandidate[_eligible[i]] = true;
+        }
+    }
+
+    function newProposal(
+        address target,
+        bytes memory data
+    ) external isEligible {
         Proposal storage proposal = proposals.push();
         proposal.target = target;
         proposal.data = data;
         emit ProposalCreated(proposals.length - 1);
     }
 
-    function castVote(uint proposalId, bool vote) external {
+    function castVote(uint proposalId, bool vote) external isEligible {
         Proposal storage proposal = proposals[proposalId];
         //clearning the previous vote
         if (proposal.voterState[msg.sender] == VoterState.Yes) {
@@ -53,5 +64,10 @@ contract Voting {
         //update the status
         proposal.voterState[msg.sender] = vote ? VoterState.Yes : VoterState.No;
         emit VoteCast(proposalId, msg.sender);
+    }
+
+    modifier isEligible() {
+        require(eligibleCandidate[msg.sender]);
+        _;
     }
 }
