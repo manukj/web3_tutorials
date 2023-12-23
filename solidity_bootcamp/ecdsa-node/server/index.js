@@ -1,15 +1,18 @@
 const express = require("express");
+const { secp256k1 } = require("ethereum-cryptography/secp256k1");
+const { keccak256 } = require("ethereum-cryptography/keccak");
+const { utf8ToBytes } = require("ethereum-cryptography/utils");
 const app = express();
 const cors = require("cors");
 const port = 3042;
 
 app.use(cors());
 app.use(express.json());
-  
+
 const balances = {
-  "03ad4bd2174f9c8dba4b96568c62ae9b0c686fa1ada5cb3730aaa481258baeb339": 100, // associate Private Key : a809a837b238c79c1c5f8508cea3dc4a0e63bd772afb3bc03dd2a4907a842b5b
-  "023832d4deaf8dcacdc4d87c7d0ee48d18630953696e6e4d65d9a52a6b171af53a": 50, // associated Private key : 794d83e71e73b2a28f36b107c391c16a031be012e82600bd13a60eda155e2276
-  "03aa7c329a3a65a03ec6fa9ba14c0e37096720e17e3dcfc89454a0b17f3bf94689": 75, // associated Private key : fb9212023c39239aba1e24b59da045d68778d0474dd6ab80b5fc476aeffddf82
+  "035a3c7e8223faa3bcedd1af9d3aaffdd41bb71065389bb0de9f03f7eaf6eed696": 100, // associate Private Key : 7030df5a6450baa3cb3dc768c44ea0e721b8c26d86f6811a908b6792ae546898
+  "034195d86b9c160989d974a33596a509a06cc7bf296ccdbe34b324ca4a18a1b3b1": 50, // associated Private key : 7d09aebbddb3f2661bad910a4611aa79af06c6d030ca6cc1bb68374a49110aba
+  "02fde88876eedc449806622f1c8ac797122f04e3811fbbc97584be0ad57eb0a55c": 75, // associated Private key : 0fa0bf008a2136d4ad35b05e7005480da66392c6a6c1a14666f7b7b6934cbd3d
 };
 
 app.get("/balance/:address", (req, res) => {
@@ -19,7 +22,13 @@ app.get("/balance/:address", (req, res) => {
 });
 
 app.post("/send", (req, res) => {
-  const { sender, recipient, amount } = req.body;
+  const { recipient, amount, signature, recoverBit } = req.body;
+
+  const recoveredSignature = secp256k1.Signature.fromCompact(signature);
+  recoveredSignature.recovery = recoverBit;
+  const hashedMessage = keccak256(utf8ToBytes("Amount:" + amount));
+  const sender = recoveredSignature.recoverPublicKey(hashedMessage).toHex();
+  console.log("sender", sender);
 
   setInitialBalance(sender);
   setInitialBalance(recipient);

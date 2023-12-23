@@ -30,9 +30,9 @@ function Wallet({
       <h1>Your Wallet</h1>
 
       <label>
-        Wallet Address
+        Private Key
         <input
-          placeholder="Enter Your Private Key"
+          placeholder="Enter Your Private Key (used to sign transactions)"
           value={privateKey}
           onChange={onChange}
         ></input>

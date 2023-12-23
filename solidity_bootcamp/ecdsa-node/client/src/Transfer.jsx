@@ -12,7 +12,7 @@ function Transfer({ address, setBalance, privateKey }) {
 
   function signMessage() {
     console.log("signing");
-    console.log("privateKey:", privateKey);
+    console.log("privateKey:", "privateKey");
     const message = "Amount:" + sendAmount;
     const hashedMessage = keccak256(utf8ToBytes(message));
     return secp256k1.sign(hashedMessage, privateKey);
@@ -21,7 +21,7 @@ function Transfer({ address, setBalance, privateKey }) {
   async function transfer(evt) {
     evt.preventDefault();
     var signature = signMessage();
-    console.log("signature:", signature);
+    var recoverBit = signature.recovery;
     try {
       const {
         data: { balance },
@@ -29,6 +29,8 @@ function Transfer({ address, setBalance, privateKey }) {
         sender: address,
         amount: parseInt(sendAmount),
         recipient,
+        signature: signature.toCompactHex(),
+        recoverBit: recoverBit,
       });
       setBalance(balance);
     } catch (ex) {
