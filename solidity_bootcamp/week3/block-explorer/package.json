@@ -24,6 +24,7 @@
 	},
 	"type": "module",
 	"dependencies": {
+		"alchemy-sdk": "^3.1.1",
 		"dotenv": "^16.3.1"
 	}
 }
