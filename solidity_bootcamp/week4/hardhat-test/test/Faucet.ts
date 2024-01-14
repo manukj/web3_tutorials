@@ -51,7 +51,17 @@ describe("Faucet", function () {
   it("should not allow non-owners to withdraw", async function () {
     const { faucet } = await loadFixture(deployContractAndSetVariables);
     const [, nonOwner] = await ethers.getSigners();
-    await expect(faucet.connect(nonOwner).withdrawAll()).to.be
-      .reverted;
+    await expect(faucet.connect(nonOwner).withdrawAll()).to.be.reverted;
+  });
+
+  it("destroy the contract and check owner balance", async function () {
+    const { faucet, owner, faucetAddress } = await loadFixture(
+      deployContractAndSetVariables
+    );
+    expect(await ethers.provider.getBalance(faucetAddress)).to.equal(
+      ethers.parseEther("1.0", "ether")
+    );
+    await faucet.destroyFaucet();
+    expect(await ethers.provider.getBalance(faucetAddress)).to.equal(0);
   });
 });
