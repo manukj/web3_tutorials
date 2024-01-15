@@ -5,10 +5,10 @@ contract Collectible {
     address owner;
     uint price;
     bool forSale;
-    event Deployed(address _address);
-    event Transfer(address, address);
+    event Deployed(address indexed _address);
+    event Transfer(address indexed, address indexed);
     event ForSale(uint, uint);
-    event Purchase(uint, address);
+    event Purchase(uint, address indexed);
 
     constructor() {
         owner = msg.sender;
@@ -28,7 +28,7 @@ contract Collectible {
     }
 
     function purchase() external payable {
-        require(msg.value == price, "1");
+          require(msg.value == price, "1");
         require(price > 0, "2");
         //transfer the amount to msg.sender first;
         (bool success, ) = owner.call{value: msg.value}("");
