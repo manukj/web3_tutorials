@@ -28,15 +28,15 @@ contract Collectible {
     }
 
     function purchase() external payable {
-        require(price == msg.value, "price sent is less then asked");
-        require(price > 0, "collectable currently is not for sale");
+        require(msg.value == price, "1");
+        require(price > 0, "2");
         //transfer the amount to msg.sender first;
         (bool success, ) = owner.call{value: msg.value}("");
         require(success, "transction failed");
         // transfer the ownership
-        transfer(msg.sender);
+        owner = msg.sender;
         // make it not for sale
         price = 0;
-        emit Purchase(price, msg.sender);
+        emit Purchase(msg.value, msg.sender);
     }
 }
