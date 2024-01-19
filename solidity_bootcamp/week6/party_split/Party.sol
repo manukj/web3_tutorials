@@ -23,4 +23,14 @@ contract Party {
         require(!isAttendee(msg.sender), "You can not rsvp twice");
         attendees.push(msg.sender);
     }
+
+    function payBill(address venue, uint256 totalAmount) external {
+        (bool success, ) = payable(venue).call{value: totalAmount}("");
+        require(success, "Payment failed");
+        uint256 splitBalance = address(this).balance / attendees.length;
+        for (uint256 i = 0; i < attendees.length; i++) {
+            (success, ) = payable(attendees[i]).call{value: splitBalance}("");
+            require(success, "Payment failed");
+        }
+    }
 }
