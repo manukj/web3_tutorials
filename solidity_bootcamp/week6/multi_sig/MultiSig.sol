@@ -68,4 +68,21 @@ contract MultiSig {
         uint256 transactionId = addTransaction(_destination, _value);
         confirmTransaction(transactionId);
     }
+
+    function isConfirmed(uint transcationId) public view returns (bool) {
+        return getConfirmationsCount(transcationId) >= required;
+    }
+
+    function executeTransaction(uint transcationId) external {
+        require(isConfirmed(transcationId), "Transaction not confirmed");
+        Transaction storage transaction = transactions[transcationId];
+        require(!transaction.executed, "Transaction already executed");
+        transaction.executed = true;
+        (bool success, ) = transaction.destination.call{
+            value: transaction.value
+        }("");
+        require(success, "Transaction failed");
+    }
+
+    receive() external payable {}
 }
