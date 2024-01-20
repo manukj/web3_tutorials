@@ -35,11 +35,21 @@ contract MultiSig {
     }
 
     function confirmTransaction(uint256 _transactionId) public {
+        require(isOwner(msg.sender), "Not an owner");
         require(
             confirmations[_transactionId][msg.sender] == false,
             "Transaction already confirmed"
         );
         confirmations[_transactionId][msg.sender] = true;
+    }
+
+    function isOwner(address _address) internal view returns (bool) {
+        for (uint256 i = 0; i < owners.length; i++) {
+            if (owners[i] == _address) {
+                return true;
+            }
+        }
+        return false;
     }
 
     function getConfirmationsCount(
