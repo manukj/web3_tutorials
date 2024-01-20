@@ -24,7 +24,7 @@ contract MultiSig {
     function addTransaction(
         address _destination,
         uint256 _value
-    ) public returns (uint256) {
+    ) internal returns (uint256) {
         transactions[transactionCount] = Transaction({
             destination: _destination,
             value: _value,
@@ -62,5 +62,10 @@ contract MultiSig {
             }
         }
         return count;
+    }
+
+    function submitTransaction(address _destination, uint256 _value) public {
+        uint256 transactionId = addTransaction(_destination, _value);
+        confirmTransaction(transactionId);
     }
 }
