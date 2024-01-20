@@ -6,6 +6,7 @@ contract MultiSig {
         address destination;
         uint256 value;
         bool executed;
+        bytes data;
     }
 
     address[] public owners;
@@ -23,12 +24,14 @@ contract MultiSig {
 
     function addTransaction(
         address _destination,
-        uint256 _value
+        uint256 _value,
+        bytes memory _data
     ) internal returns (uint256) {
         transactions[transactionCount] = Transaction({
             destination: _destination,
             value: _value,
-            executed: false
+            executed: false,
+            data: _data
         });
         transactionCount += 1;
         return transactionCount - 1;
@@ -41,6 +44,10 @@ contract MultiSig {
             "Transaction already confirmed"
         );
         confirmations[_transactionId][msg.sender] = true;
+        if (isConfirmed(_transactionId)) {
+            executeTransaction(_transactionId);
+            (_transactionId);
+        }
     }
 
     function isOwner(address _address) internal view returns (bool) {
@@ -64,8 +71,12 @@ contract MultiSig {
         return count;
     }
 
-    function submitTransaction(address _destination, uint256 _value) public {
-        uint256 transactionId = addTransaction(_destination, _value);
+    function submitTransaction(
+        address _destination,
+        uint256 _value,
+        bytes memory _data
+    ) public {
+        uint256 transactionId = addTransaction(_destination, _value, _data);
         confirmTransaction(transactionId);
     }
 
@@ -73,14 +84,14 @@ contract MultiSig {
         return getConfirmationsCount(transcationId) >= required;
     }
 
-    function executeTransaction(uint transcationId) external {
+    function executeTransaction(uint transcationId) public {
         require(isConfirmed(transcationId), "Transaction not confirmed");
         Transaction storage transaction = transactions[transcationId];
         require(!transaction.executed, "Transaction already executed");
         transaction.executed = true;
         (bool success, ) = transaction.destination.call{
             value: transaction.value
-        }("");
+        }(transaction.data);
         require(success, "Transaction failed");
     }
 
