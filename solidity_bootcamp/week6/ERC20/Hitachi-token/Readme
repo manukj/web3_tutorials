@@ -1,0 +1,4 @@
+Run npm init -y
+Run npm install dotenv (super important, if you don't feel fresh on .env, it's very important!)
+Run npm install --save-dev hardhat
+Run npx hardhat
