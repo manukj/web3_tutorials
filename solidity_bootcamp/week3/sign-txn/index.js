@@ -5,8 +5,9 @@ const { TEST_API_KEY, TEST_PRIVATE_KEY } = process.env;
 
 const settings = {
   apiKey: TEST_API_KEY,
-  network: Network.ETH_GOERLI,
+  network: Network.ETH_SEPOLIA,
 };
+
 const alchemy = new Alchemy(settings);
 
 let wallet = new Wallet(TEST_PRIVATE_KEY);
