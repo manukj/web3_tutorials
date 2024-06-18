@@ -6,9 +6,10 @@ import "./UIntFunctions.sol";
 contract Game {
     uint public participants;
     bool public allowTeams;
+    using UIntFunctions for uint;
 
     constructor(uint numberOfParticipants) {
         participants = numberOfParticipants;
-        allowTeams = UIntFunctions.isEven(participants);
+        allowTeams = participants.isEven();
     }
 }
