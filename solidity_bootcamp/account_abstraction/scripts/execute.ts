@@ -9,7 +9,7 @@ const EntryPointAddress = "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512";
 const PM_ADDRESS = "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0";
 
 async function main() {
-    const [signer0] = await hre.ethers.getSigners();
+    const [signer0,signer1] = await hre.ethers.getSigners();
     const address0 = await signer0.getAddress();
 
     const entryPoint = await hre.ethers.getContractAt("EntryPoint", EntryPointAddress);
@@ -20,9 +20,10 @@ async function main() {
     // call data which is call function execute in the account
     const callData = Account.interface.encodeFunctionData("execute");
     // init code for creating an account
-    const initCode = FACTORY_ADDRESS + AccountFactory.interface
-        .encodeFunctionData("createAccount", [address0])
-        .slice(2);
+    const initCode = "0x"
+    // FACTORY_ADDRESS + AccountFactory.interface
+    //     .encodeFunctionData("createAccount", [address0])
+    //     .slice(2);
 
     // sender address which is the account address
     var sender = await hre.ethers.getCreateAddress({
@@ -31,12 +32,18 @@ async function main() {
     });
     console.log("Inital Sender: ", sender);
     try {
-        await entryPoint.getSenderAddress(initCode);
-    } catch (ex: any) {
-        // calculating the sender address dynamically
-        sender = "0x" + ex.data.data.slice(-40);
+        try {
+            await entryPoint.getSenderAddress(initCode);
+        } catch (ex: any) {
+            console.log(ex.data.data);
+            // calculating the sender address dynamically
+            sender = "0x" + ex.data.data.slice(-40);
+        }
+    } catch (ex) {
+        console.log(ex);
     }
     console.log("Sender: ", sender);
+    sender = "0xa16e02e87b7454126e5e10d957a927a7f5b5d2be"; /// commment when initcode is reset line
 
     console.log("----------------  executing transcation  ----------------");
 
@@ -55,16 +62,14 @@ async function main() {
     userOP.nonce = await entryPoint.getNonce(sender, 0);
     userOP.initCode = initCode;
     userOP.callData = callData;
+    userOP.signature = await signer0.signMessage(hre.ethers.getBytes(hre.ethers.id("hello")));
 
 
     const txn = await entryPoint.handleOps([userOP], address0);
     const receipt = await txn.wait();
     console.log(receipt);
 
-    console.log("----------------------- transcation success -----------------------");
-    var account = await hre.ethers.getContractAt("Account", sender);
-    var count = await account.count();
-    console.log("Count after execution", count);
+
 }
 
 

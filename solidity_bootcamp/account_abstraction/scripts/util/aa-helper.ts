@@ -2,7 +2,7 @@ import { ethers } from "hardhat";
 
 
 export async function getEmptyPackedUserOperation() {
-    const verificationGasLimit = 200_000;
+    const verificationGasLimit = 400_000;
     const callGasLimit = verificationGasLimit;
     const maxPriorityFeePerGas = 256n;
     const maxFeePerGas = maxPriorityFeePerGas;
