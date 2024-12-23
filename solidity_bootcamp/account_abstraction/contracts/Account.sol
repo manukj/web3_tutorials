@@ -30,6 +30,7 @@ contract Account is IAccount {
 
 contract AccountFactory{
     function createAccount(address owner) external returns (address) {
-        return address(new Account(owner));
+        Account account = new Account(owner);
+        return address(account);
     }
 }
