@@ -43,11 +43,14 @@ async function main() {
     // deposit some ether to the the one who is going to pay for the gas
     // in this case the smart account will be responsible for the gas fee
     var balanceInEntryPoint = await entryPoint.balanceOf(sender);
+    // var balanceInEntryPoint = await entryPoint.balanceOf(PM_ADDRESS);
     if (balanceInEntryPoint <= (hre.ethers.parseEther("0.5"))) {
         await entryPoint.depositTo(sender, { value: hre.ethers.parseEther("1") });
+        // await entryPoint.depositTo(PM_ADDRESS, { value: hre.ethers.parseEther("1") });
     }
 
     const userOP = await getEmptyPackedUserOperation();
+    // userOP.paymasterAndData = PM_ADDRESS; // need to fix this
     userOP.sender = sender;
     userOP.nonce = await entryPoint.getNonce(sender, 0);
     userOP.initCode = initCode;
