@@ -27,16 +27,10 @@ export function encodePaymasterAndData(
     validationGasLimit: bigint,
     postOpGasLimit: bigint
 ): string {
-    // Ensure the Paymaster address is 20 bytes
     const addressBytes = ethers.zeroPadBytes(ethers.getBytes(pmAddress), 20);
-
-    // Encode the validation and post-op gas limits as 16 bytes each
     const validationGasBytes = ethers.zeroPadValue(ethers.toBeHex(validationGasLimit), 16);
     const postOpGasBytes = ethers.zeroPadValue(ethers.toBeHex(postOpGasLimit), 16);
-
-    // Concatenate the address and gas limit bytes
     return ethers.concat([addressBytes, validationGasBytes, postOpGasBytes]);
-
 }
 
 
