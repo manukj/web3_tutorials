@@ -8,6 +8,7 @@ import "@account-abstraction/contracts/core/EntryPoint.sol";
 import "@account-abstraction/contracts/interfaces/IAccount.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import "@openzeppelin/contracts/utils/cryptography/MessageHashUtils.sol";
+import "@openzeppelin/contracts/utils/Create2.sol";
 
 contract Account is IAccount {
     uint public count = 0;
@@ -23,11 +24,11 @@ contract Account is IAccount {
 
     function validateUserOp(
         PackedUserOperation calldata userOp,
-        bytes32,
+        bytes32 userOpHash,
         uint256
     ) external view returns (uint256 validationData) {
         address recovered = ECDSA.recover(
-            MessageHashUtils.toEthSignedMessageHash(keccak256("hello")),
+            MessageHashUtils.toEthSignedMessageHash(userOpHash),
             userOp.signature
         );
         return owner == recovered ? 0 : 1; // 0 means valid signature and 1 means invalid signature
@@ -36,7 +37,18 @@ contract Account is IAccount {
 
 contract AccountFactory {
     function createAccount(address owner) external returns (address) {
-        Account account = new Account(owner);
-        return address(account);
+        // amount, salt, bytecode
+        bytes32 salt = bytes32(uint256(uint160(owner)));
+        bytes memory byteCode = abi.encodePacked(
+            type(Account).creationCode,
+            abi.encode(owner)
+        );
+
+        address addr = Create2.computeAddress(salt, keccak256(byteCode));
+        uint256 codeSize = addr.code.length;
+        if (codeSize > 0) {
+            return addr;
+        }
+        return Create2.deploy(0, salt, byteCode);
     }
 }

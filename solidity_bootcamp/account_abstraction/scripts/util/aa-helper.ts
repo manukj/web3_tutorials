@@ -22,11 +22,21 @@ export async function getEmptyPackedUserOperation() {
 
 
 
-export function getPaymasterAndData(paymaster: string): string {
-    return (
-        ethers.zeroPadBytes(paymaster + ethers.toBeHex("0x10000", 16).slice(2, 32), 36) +
-        ethers.zeroPadValue("0x1000", 16).slice(2)
-    );
+export function encodePaymasterAndData(
+    pmAddress: string,
+    validationGasLimit: bigint,
+    postOpGasLimit: bigint
+): string {
+    // Ensure the Paymaster address is 20 bytes
+    const addressBytes = ethers.zeroPadBytes(ethers.getBytes(pmAddress), 20);
+
+    // Encode the validation and post-op gas limits as 16 bytes each
+    const validationGasBytes = ethers.zeroPadValue(ethers.toBeHex(validationGasLimit), 16);
+    const postOpGasBytes = ethers.zeroPadValue(ethers.toBeHex(postOpGasLimit), 16);
+
+    // Concatenate the address and gas limit bytes
+    return ethers.concat([addressBytes, validationGasBytes, postOpGasBytes]);
+
 }
 
 
